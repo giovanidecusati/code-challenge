@@ -1,10 +1,10 @@
 # HTTP Parser
 To run this console app, build and type the following command:
 
-![assets\results.png](assets\executing.png)
+![Executing](assets/executing.png)
 
 Unit Test Results
-![assets\results.png](assets\results.png)
+![Results](assets/results.png)
 
 ```
 .\HttpLogParser.ConsoleApp.exe -f "C:\temp\Mantel\programming-task\programming-task-example-data.log"
