@@ -1,4 +1,5 @@
 ﻿using HttpLogParser.ConsoleApp.Engine.Abstractions;
+using System.Text;
 
 namespace HttpLogParser.ConsoleApp.Engine;
 public class LogReader
@@ -12,12 +13,27 @@ public class LogReader
 
     public IReadOnlyList<LogItemModel> ReadFromFile(string path)
     {
-        var lines = File.ReadAllLines(path);
         var items = new List<LogItemModel>();
-        foreach (var line in lines)
+
+        // replaced to support large files
+        //var lines = File.ReadAllLines(path);
+        //foreach (var line in lines)
+        //{
+        //    var item = _logrowparser.ParseFromString(line);
+        //    items.Add(item);
+        //}
+
+        // Enable support to large files
+        const int BufferSize = 128;
+        using (var fileStream = File.OpenRead(path))
+        using (var streamReader = new StreamReader(fileStream, Encoding.UTF8, true, BufferSize))
         {
-            var item = _logrowparser.ParseFromString(line);
-            items.Add(item);
+            string line;
+            while ((line = streamReader.ReadLine()) != null)
+            {
+                var item = _logrowparser.ParseFromString(line);
+                items.Add(item);
+            }
         }
 
         return items.AsReadOnly();
