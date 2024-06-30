@@ -20,25 +20,43 @@ public class LogReporting
 
     public IReadOnlyCollection<GetTop3MostActiveIpAddressesModel> GetTop3MostActiveIpAddresses()
     {
-        //TODO: TAKE 3 is not the best result
-        return _logitems.GroupBy(i => i.RemoteHostAddress)
-            .Select(i => new GetTop3MostActiveIpAddressesModel(i.Key, i.Count()))
+        var min = _logitems
+            .GroupBy(i => i.RemoteHostAddress)
+            .Select(i => new { RemoteHostAddress = i.Key, Count = i.Count() })
             .OrderByDescending(i => i.Count)
             .Take(3)
+            .Min(i => i.Count);
+
+        return _logitems
+            .GroupBy(i => i.RemoteHostAddress)
+            .Select(i => new GetTop3MostActiveIpAddressesModel(i.Key, i.Count()))
+            .OrderByDescending(i => i.Count)
+            .TakeWhile(i => i.Count >= min)
             .ToList()
             .AsReadOnly();
     }
 
     public IReadOnlyCollection<GetTop3MostVisitedUrlsModel> GetTop3MostVisitedUrls()
     {
-        //TODO: TAKE 3 is not the best result
-        return _logitems
-            .GroupBy(i => ProtocolSanitizer(i.RequestAndProtocol))
-            .Select(i => new GetTop3MostVisitedUrlsModel(i.Key, i.Count()))
+        var sanitizedItems = _logitems
+            .Select(i => new { RequestAndProtocol = ProtocolSanitizer(i.RequestAndProtocol) });
+
+        var min = sanitizedItems
+            .GroupBy(i => i.RequestAndProtocol)
+            .Select(i => new { RequestAndProtocol = i.Key, Count = i.Count() })
             .OrderByDescending(i => i.Count)
             .Take(3)
+            .Min(i => i.Count);
+
+
+        return sanitizedItems
+            .GroupBy(i => i.RequestAndProtocol)
+            .Select(i => new GetTop3MostVisitedUrlsModel(i.Key, i.Count()))
+            .OrderByDescending(i => i.Count)
+            .TakeWhile(i => i.Count >= min)
             .ToList()
             .AsReadOnly();
+
     }
 
     private string ProtocolSanitizer(string requestAndProtocol)
