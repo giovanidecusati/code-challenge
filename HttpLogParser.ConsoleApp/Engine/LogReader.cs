@@ -33,6 +33,8 @@ public class LogReader
             {
                 var item = _logrowparser.ParseFromString(line);
                 items.Add(item);
+                // use yeld return here
+                // plug the aggregator
             }
         }
 
